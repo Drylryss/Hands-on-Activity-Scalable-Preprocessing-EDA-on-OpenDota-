@@ -1,17 +1,17 @@
 import os
 import sys
 from pathlib import Path
+from pyspark.sql import functions as F
+import pyspark
+from pyspark.sql import SparkSession
 
 # 1) Force the correct Java & Python paths
 os.environ["JAVA_HOME"] = "/opt/homebrew/opt/openjdk@17"
 os.environ["PYSPARK_PYTHON"] = sys.executable
 os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
 
-# Add Java to the system path so Spark can find the 'java' command
 os.environ["PATH"] = os.environ["JAVA_HOME"] + "/bin:" + os.environ["PATH"]
 
-import pyspark
-from pyspark.sql import SparkSession
 # ---------- 1) Stop any existing SparkSession (if any) ----------
 try:
     spark.stop()
@@ -119,3 +119,21 @@ print("✅ Spark started:", spark.version)
 print(" - Master:", spark.sparkContext.master)
 print(" - Spark UI:", spark.sparkContext.uiWebUrl)
 print("alive_check =", spark.range(1).count())
+
+from pathlib import Path
+
+MY_ID = "yourname" 
+SAMPLE_CSV = Path.home() / "opendota_processed" / MY_ID / "matches_parts" / "part-*.csv"
+
+# 2. Now run your Spark read command
+matches_raw = (spark.read
+               .option("header", "true")
+               .option("inferSchema", "false") # Keeping it false as you had it
+               .csv(str(SAMPLE_CSV))
+               # Projecting only the columns needed
+               .select("match_id", "start_time", "duration", "radiant_win", "cluster", "game_mode", "lobby_type")
+              )
+
+# 3. Preview to verify (Required for Task 3)
+matches_raw.limit(5).show()
+
