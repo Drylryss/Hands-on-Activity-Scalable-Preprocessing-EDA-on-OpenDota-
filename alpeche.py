@@ -1,9 +1,7 @@
 import os
 import sys
 from pathlib import Path
-from pyspark.sql import functions as F
-import pyspark
-from pyspark.sql import SparkSession
+
 
 # 1) Force the correct Java & Python paths
 os.environ["JAVA_HOME"] = "/opt/homebrew/opt/openjdk@17"
@@ -12,6 +10,8 @@ os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
 
 os.environ["PATH"] = os.environ["JAVA_HOME"] + "/bin:" + os.environ["PATH"]
 
+import pyspark
+from pyspark.sql import SparkSession
 # ---------- 1) Stop any existing SparkSession (if any) ----------
 try:
     spark.stop()
